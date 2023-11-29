@@ -28,16 +28,6 @@ class FileStorage:
                 if isinstance(val, cls):
                     temp[key] = val
             return temp
-    
-    
-    def delete(self, obj=None):
-        """ Deletes obj from __objects if its inside """
-        if obj is None:
-            return
-        key = f"{obj.__class__.__name__}.{obj.id}"
-        if key in self.__objects:
-            del self.__objects[key]
-            self.save()
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -70,4 +60,11 @@ class FileStorage:
                         self.all()[key] = classes[val['__class__']](**val)
         except FileNotFoundError:
             pass
-        
+    def delete(self, obj=None):
+        """ Deletes obj from __objects if its inside """
+        if obj is None:
+            return
+        key = f"{obj.__class__.__name__}.{obj.id}"
+        if key in self.__objects:
+            del self.__objects[key]
+            self.save()
