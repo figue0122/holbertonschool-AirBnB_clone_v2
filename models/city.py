@@ -4,10 +4,6 @@
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
-<<<<<<< HEAD
-=======
-
->>>>>>> 9ef57b8c2da398cc5788cf3c1f49827a0947306a
 
 class City(BaseModel, Base):
 
