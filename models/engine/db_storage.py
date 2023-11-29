@@ -52,5 +52,4 @@ class DBStorage:
         """ Create all tables and start a new session """
         Base.metadata.create_all(self.__engine)
         session_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
-        Session = scoped_session(session_factory)
-        self.__session = Session()
+        Session

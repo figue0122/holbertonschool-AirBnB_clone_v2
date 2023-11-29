@@ -1,13 +1,20 @@
 #!/usr/bin/python3
-"""User module"""
+""" State Module """
 
-from models.base_model import BaseModel
+from models.base_model import BaseModel, Base
+from sqlalchemy import Column, String
+from sqlalchemy.orm import relationship
+import models
 
+class State(BaseModel, Base):
+    """ The state class, contains name and relationship to cities """
+    __tablename__ = 'states'
+    name = Column(String(128), nullable=False)
 
-class State(BaseModel):
-    """State class that inherits from BaseModel"""
-    name = ""
-
-    def __str__(self):
-        """String representation of the State instance"""
-        return f"[{type(self).__name__}] ({self.id}) {self.__dict__}"
+    if models.storage_t == 'db':
+        cities = relationship("City", backref="state", cascade="all, delete-orphan")
+    else:
+        @property
+        def cities(self):
+            """ Getter for cities in the file storage """
+            return [city for city in models.storage.all(City).values() if city.state_id == self.id]
