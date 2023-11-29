@@ -1,59 +1,56 @@
 #!/usr/bin/python3
-"""FileStorage Module"""
+""" DBStorage Module """
 
-import json
-from os import path
-from models.base_model import BaseModel
-from models.user import User
-from models.city import City
-from models.place import Place
-from models.review import Review
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
+from os import getenv
+from models.base_model import Base
 from models.state import State
-from models.amenity import Amenity
+from models.city import City
 
+class DBStorage:
+    """ Database storage class """
+    __engine = None
+    __session = None
 
-class FileStorage:
-    """FileStorage class to serialize and deserialize instances"""
-    __file_path = "file.json"
-    __objects = {}
-    CLASS_DICT = {"BaseModel": BaseModel,
-                  "User": User,
-                  "City": City,
-                  "Place": Place,
-                  "Review": Review,
-                  "State": State,
-                  "Amenity": Amenity}
+    def __init__(self):
+        """ Initialization of DBStorage """
+        user = getenv('HBNB_MYSQL_USER')
+        pwd = getenv('HBNB_MYSQL_PWD')
+        host = getenv('HBNB_MYSQL_HOST')
+        db = getenv('HBNB_MYSQL_DB')
+        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.
+                                      format(user, pwd, host, db),
+                                      pool_pre_ping=True)
+        if getenv('HBNB_ENV') == 'test':
+            Base.metadata.drop_all(self.__engine)
 
-    def all(self):
-        """Returns the dictionary __objects"""
-        return FileStorage.__objects
+    def all(self, cls=None):
+        """ Query all objects of a certain class """
+        new_dict = {}
+        if cls:
+            objs = self.__session.query(cls).all()
+            for obj in objs:
+                key = obj.__class__.__name__ + '.' + obj.id
+                new_dict[key] = obj
+        return new_dict
 
     def new(self, obj):
-        """Sets in __objects the obj with key <obj class name>.id"""
-        key = "{}.{}".format(obj.__class__.__name__, obj.id)
-        FileStorage.__objects[key] = obj
+        """ Add the object to the current database session """
+        self.__session.add(obj)
 
     def save(self):
-        """Serializes __objects to the JSON file"""
-        with open(FileStorage.__file_path, 'w') as f:
-            dict_obj = {key: value.to_dict()
-                        for key, value in FileStorage.__objects.items()}
-            json.dump(dict_obj, f)
+        """ Commit all changes of the current database session """
+        self.__session.commit()
+
+    def delete(self, obj=None):
+        """ Delete obj from the current database session """
+        if obj:
+            self.__session.delete(obj)
 
     def reload(self):
-        """Deserializes the JSON file to __objects"""
-        if path.exists(FileStorage.__file_path):
-            with open(FileStorage.__file_path, 'r') as f:
-                objs = json.load(f)
-            for key, value in objs.items():
-                cls_name = value["__class__"]
-                cls = FileStorage.CLASS_DICT.get(cls_name)
-                if cls:
-                    instance = cls(**value)
-                    FileStorage.__objects[key] = instance
-    def delete(self, obj=None):
-        """ Deletes obj from __objects if its inside """
-        if obj:
-            obj_key = f"{type(obj).__name__}.{obj.id}"
-            if obj_key in self.__objects:
-                del self.__objects[obj_key]
+        """ Create all tables and start a new session """
+        Base.metadata.create_all(self.__engine)
+        session_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        Session = scoped_session(session_factory)
+        self.__session = Session()
