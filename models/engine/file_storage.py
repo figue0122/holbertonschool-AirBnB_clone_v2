@@ -19,21 +19,25 @@ class FileStorage:
         """ Returns a dictionary of models currently in storage.
             If cls is provided, it returns only objects of that class.
         """
-        if cls:
-            cls_dict = {}
-            for key, obj in FileStorage.__objects.items():
-                if isinstance(obj, cls):
-                    cls_dict[key] = obj
-            return cls_dict
-        return FileStorage.__objects
+        if cls is None:
+            return FileStorage.__objects
+        else:
+            # return {key: val for key, val in FileStorage.__objects.items() if isinstance(val, cls)}
+            temp = {}
+            for key, val in FileStorage.__objects.items():
+                if isinstance(val, cls):
+                    temp[key] = val
+            return temp
     
     
     def delete(self, obj=None):
         """ Deletes obj from __objects if its inside """
-        if obj:
-            obj_key = f"{type(obj).__name__}.{obj.id}"
-            if obj_key in self.__objects:
-                del self.__objects[obj_key]
+        if obj is None:
+            return
+        key = f"{obj.__class__.__name__}.{obj.id}"
+        if key in self.__objects:
+            del self.__objects[key]
+            self.save()
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
