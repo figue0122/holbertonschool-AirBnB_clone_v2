@@ -10,6 +10,7 @@ import models
 Base = declarative_base()
 
 class BaseModel:
+
     """ The base model for other classes in AirBnB clone """
     id = Column(String(60), primary_key=True, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
