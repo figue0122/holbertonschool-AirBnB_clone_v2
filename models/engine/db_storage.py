@@ -5,8 +5,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from os import getenv
 from models.base_model import Base
-from models.state import State
-from models.city import City
 
 class DBStorage:
     """ Database storage class """
