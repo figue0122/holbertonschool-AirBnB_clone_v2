@@ -5,6 +5,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from os import getenv
 from models.base_model import Base
+from models.state import State
+from models.city import City
 
 class DBStorage:
     """ Database storage class """
@@ -50,5 +52,4 @@ class DBStorage:
         """ Create all tables and start a new session """
         Base.metadata.create_all(self.__engine)
         session_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
-        Session = scoped_session(session_factory)
-        self.__session = Session()
+        Session
