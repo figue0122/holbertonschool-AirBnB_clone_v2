@@ -36,10 +36,14 @@ class DBStorage:
     def all(self, cls=None):
         """ Query all objects of a certain class """
         new_dict = {}
-        if cls:
-            objs = self.__session.query(cls).all()
-            for obj in objs:
-                key = obj.__class__.__name__ + '.' + obj.id
+        if cls is None:
+            for key, value in classes.items():
+                for obj in self.__session.query(value).all():
+                    key = obj.__class__.__name__ + "." + obj.id
+                    new_dict[key] = obj
+        else:
+            for obj in self.__session.query(cls).all():
+                key = obj.__class__.__name__ + "." + obj.id
                 new_dict[key] = obj
         return new_dict
 
