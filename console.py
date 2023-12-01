@@ -3,7 +3,7 @@
 import cmd
 import sys
 from models.base_model import BaseModel
-from models import storage
+from models.__init__ import storage
 from models.user import User
 from models.place import Place
 from models.state import State
@@ -19,9 +19,9 @@ class HBNBCommand(cmd.Cmd):
     prompt = '(hbnb) ' if sys.__stdin__.isatty() else ''
 
     classes = {
-            'BaseModel': BaseModel, 'User': User, 'Place': Place,
-            'State': State, 'City': City, 'Amenity': Amenity,
-            'Review': Review
+        'BaseModel': BaseModel, 'User': User, 'Place': Place,
+        'State': State, 'City': City, 'Amenity': Amenity,
+        'Review': Review
     }
     dot_cmds = ['all', 'count', 'show', 'destroy', 'update']
     types = {
@@ -115,31 +115,35 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        if not args:
+        arg = args.split()
+        if not arg:
             print("** class name missing **")
             return
-        args = args.split(" ")
-        if args[0] not in HBNBCommand.classes:
+        elif arg[0] not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        cls = HBNBCommand.classes[args[0]]
-        kwargs = {}
-        params = args[1:]
-        for param in params:
-            k, v = param.split('=')
-            if v == '':
+        new_instance = HBNBCommand.classes[arg[0]]()
+        for param in arg[1:]:
+            parts = param.split('=')
+            if len(parts) != 2:
                 continue
-            if v[0] == '"' and v[len(v)-1] == '"':
-                v = v.strip('"')
-                v = v.replace('_', ' ')
-                v = v.replace('"', '\"')
+            key, value = parts
+            if not hasattr(new_instance, key):
+                continue
+            value = value.replace('_', ' ')
+            if value[0] == '"' and value[-1] == '"':
+                value = value[1:-1].replace('\\"', '"')
+            elif '.' in value:
+                try:
+                    value = float(value)
+                except ValueError:
+                    continue
             else:
                 try:
-                    v = eval(v)
-                except NameError:
+                    value = int(value)
+                except ValueError:
                     continue
-            kwargs[k] = v
-        new_instance = cls(**kwargs)
+            setattr(new_instance, key, value)
         new_instance.save()
         print(new_instance.id)
 
@@ -223,14 +227,14 @@ class HBNBCommand(cmd.Cmd):
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage.all().items():
-                if k.split('.')[0] == args:
-                    print_list.append(str(v))
+            cls = HBNBCommand.classes[args]
+            for v in storage.all(cls).values():
+                print_list.append(str(v))
         else:
-            for k, v in storage.all().items():
+            for v in storage.all().values():
                 print_list.append(str(v))
 
-        print("[{}]".format(", ".join(print_list)))
+        print(print_list)
 
     def help_all(self):
         """ Help information for the all command """
@@ -320,7 +324,6 @@ class HBNBCommand(cmd.Cmd):
                 if not att_name:  # check for att_name
                     print("** attribute name missing **")
                     return
-
                 if not att_val:  # check for att_value
                     print("** value missing **")
                     return
