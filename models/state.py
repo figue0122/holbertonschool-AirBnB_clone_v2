@@ -20,7 +20,8 @@ class State(BaseModel, Base):
 
         @property
         def cities(self):
-            """Getter attribute cities that returns the list of City instances"""
+            """Getter attribute cities that returns
+            the list of City instances"""
             city_list = []
             all_cities = models.storage.all(City)
             for city in all_cities.values():
