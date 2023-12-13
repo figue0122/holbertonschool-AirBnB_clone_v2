@@ -9,7 +9,7 @@ app.url_map.strict_slashes = False
 """ Route decorator """
 
 app.route('/')
-def hello_hbnb():
+def hello():
     return 'Hello HBNB!'
 
 
