@@ -1,16 +1,17 @@
 #!/usr/bin/python3
-""" Hello world with flask """
+""" This module starts a Flask web application """""
 from flask import Flask
-""" Flask class """
+"""Flask class and render_template method"""
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
-""" Route decorator """
+""" App route section"""
 
-app.route('/')
+
+@app.route('/')
 def hello():
     return 'Hello HBNB!'
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
