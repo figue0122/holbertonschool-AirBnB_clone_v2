@@ -3,7 +3,6 @@
 from flask import Flask
 """ Flask class """
 app = Flask(__name__)
-""" Flask object """
 app.url_map.strict_slashes = False
 
 """ Route decorator """
