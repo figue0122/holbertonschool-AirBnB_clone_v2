@@ -24,6 +24,7 @@ def c(text):
     """ Hello world with flask """
     return f"C {text.replace('_', ' ')}"
 
+
 @app.route('/python/', defaults={'text': 'is cool'})
 @app.route('/python/<text>')
 def python(text='is cool'):
