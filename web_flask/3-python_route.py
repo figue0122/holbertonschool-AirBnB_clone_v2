@@ -22,13 +22,13 @@ def hbnb():
 @app.route('/c/<text>')
 def c(text):
     """ Hello world with flask """
-    return 'C {}'.format(text.replace('_', ' '))
+    return f"C {text.replace('_', ' ')}"
 
-
-@app.route('/python/')
-def python():
+@app.route('/python/', defaults={'text': 'is cool'})
+@app.route('/python/<text>')
+def python(text='is cool'):
     """ Hello world with flask """
-    return 'Python is cool'
+    return f"Python {text.replace('_', ' ')}"
 
 
 if __name__ == '__main__':
