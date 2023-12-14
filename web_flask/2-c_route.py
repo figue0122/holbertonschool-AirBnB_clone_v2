@@ -18,6 +18,7 @@ def hbnb():
     """ Hello world with flask """
     return 'HBNB'
 
+
 @app.route('/c/<text>')
 def c(text):
     """ Hello world with flask """
