@@ -4,6 +4,7 @@
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.session import Session
 import models
 from os import getenv
 from models.city import City
@@ -12,19 +13,21 @@ from models.city import City
 class State(BaseModel, Base):
     """ The state class, contains name and relationship to cities """
     __tablename__ = 'states'
-    name = Column(String(128), nullable=False)
-    if getenv('HBNB_TYPE_STORAGE') == 'db':
-        cities = relationship("City", backref="state",
-                              cascade="all, delete, delete-orphan")
-    else:
 
+    name = Column(String(128), nullable=False)
+    cities = relationship("City", backref="state",
+                            cascade="all, delete")
+
+    if getenv('HBNB_TYPE_STORAGE') != 'db':
         @property
         def cities(self):
             """Getter attribute cities that returns
             the list of City instances"""
-            city_list = []
-            all_cities = models.storage.all(City)
-            for city in all_cities.values():
-                if city.state_id == self.id:
-                    city_list.append(city)
-            return city_list
+            from models import storage
+            all_cities = storage.all(City)
+            return [city for city in all_cities.values()
+                    if city.state_id == self.id]
+
+    def close(self):
+        """Close session"""
+        Session.close()
